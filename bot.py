@@ -44,7 +44,7 @@ async def on_message(message):
         realtext = text['text']
         await message.channel.send(realtext)
     # Call API for cung hoang dao
-    if message.content.startswith('-cung '):
+    if message.content.startswith('-cung'):
         cung_hoang_dao = message.content
         response = requests.get('https://api.kma-chatbot.com/cunghoangdao.php?cung=%s' % cung_hoang_dao[6:])
         results = response.json()
@@ -52,7 +52,28 @@ async def on_message(message):
         text = messages[0]
         realtext = text['text']
         await message.channel.send(realtext)
+    if message.content.startswith('-cat'):
+        response = requests.get('https://api.thecatapi.com/v1/images/search')
+        results = response.json()
+        JSON_Find = results[0]
+        url = JSON_Find['url']
+        print(url)
+        await message.channel.send(url)
+
+    if message.content.startswith('-predict'):
+        Picture = message.content
+
+        from clarifai.rest import ClarifaiApp
+        # Get Free API KEY on Clarifai
+        app = ClarifaiApp(api_key='API KEY')
+        model = app.public_models.general_model
+        response = model.predict_by_url(Picture[9:])
+        find = response['outputs'][0]['data']['concepts']
+        for x in find:
+            print(str(x['name']) + ' Khả năng chính xác: ' + (str(x['value'])[0:4]))
+            await message.channel.send(str(x['name']) + ' Khả năng chính xác: ' + (str(x['value'])[0:4]))
     
     
 client.run(token)
+
 
